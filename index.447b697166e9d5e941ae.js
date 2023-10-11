@@ -3869,7 +3869,7 @@ const request = async function (url) {
       customError.statusCode = result.status;
       throw customError;
     }
-    if (result.status === 204) {
+    if (result.status === 204 || result.status === 201) {
       return null;
     }
     return await result.json();
@@ -3988,7 +3988,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_event_listeners__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/event-listeners */ "./src/modules/event-listeners/index.js");
 /* harmony import */ var _modules_visit__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./modules/visit */ "./src/modules/visit.js");
 /* harmony import */ var _modules_utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./modules/utils */ "./src/modules/utils/index.js");
-/* harmony import */ var _modules_inintialState_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./modules/inintialState.js */ "./src/modules/inintialState.js");
+/* harmony import */ var _modules_modal__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./modules/modal */ "./src/modules/modal/index.js");
+/* harmony import */ var _modules_inintialState_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./modules/inintialState.js */ "./src/modules/inintialState.js");
+
 
 
 
@@ -4007,67 +4009,73 @@ const getDataApiAll = async _ref => {
     employeeId,
     period = 'DAY'
   } = _ref;
-  const data = await (0,_api_api_js__WEBPACK_IMPORTED_MODULE_5__.getAllVisits)({
-    locationId,
-    visitDate,
-    employeeId,
-    period
-  });
-  console.log(data);
-  if (!data.length) {
-    console.log('data wasn`t get');
-  } else {
-    if (period === 'DAY') {
-      (0,_modules_calendar__WEBPACK_IMPORTED_MODULE_6__.Calendar)({
-        startHour: _modules_inintialState_js__WEBPACK_IMPORTED_MODULE_10__.initialState.startHour,
-        finishHour: _modules_inintialState_js__WEBPACK_IMPORTED_MODULE_10__.initialState.finishHour,
-        data
-      });
-      if (data.length >= 2) {
-        const perPage = data.length <= 11 ? data.length : 10;
-        const gap = data.length > 3 ? (0,_modules_utils__WEBPACK_IMPORTED_MODULE_9__.calculateGap)() + 2 : 1;
-        const slider = new _splidejs_splide__WEBPACK_IMPORTED_MODULE_1__["default"]('.splide', {
-          pagination: false,
-          direction: 'ltr',
-          perPage,
-          arrows: false,
-          gap: `${gap}px`
-        }).mount();
-        slider.on('moved', () => {
-          (0,_modules_utils__WEBPACK_IMPORTED_MODULE_9__.scrollTable)();
+  try {
+    const data = await (0,_api_api_js__WEBPACK_IMPORTED_MODULE_5__.getAllVisits)({
+      locationId,
+      visitDate,
+      employeeId,
+      period
+    });
+    console.log(data);
+    if (!data.length) {
+      console.log('data wasn`t get');
+    } else {
+      if (period === 'DAY') {
+        (0,_modules_calendar__WEBPACK_IMPORTED_MODULE_6__.Calendar)({
+          startHour: _modules_inintialState_js__WEBPACK_IMPORTED_MODULE_11__.initialState.startHour,
+          finishHour: _modules_inintialState_js__WEBPACK_IMPORTED_MODULE_11__.initialState.finishHour,
+          data
         });
+        if (data.length >= 2) {
+          const perPage = data.length <= 11 ? data.length : 10;
+          const gap = data.length > 3 ? (0,_modules_utils__WEBPACK_IMPORTED_MODULE_9__.calculateGap)() + 2 : 1;
+          const slider = new _splidejs_splide__WEBPACK_IMPORTED_MODULE_1__["default"]('.splide', {
+            pagination: false,
+            direction: 'ltr',
+            perPage,
+            arrows: false,
+            gap: `${gap}px`
+          }).mount();
+          slider.on('moved', () => {
+            (0,_modules_utils__WEBPACK_IMPORTED_MODULE_9__.scrollTable)();
+          });
+        }
+        (0,_modules_visit__WEBPACK_IMPORTED_MODULE_8__.Visit)({
+          data,
+          period: 'DAY'
+        });
+        (0,_modules_event_listeners__WEBPACK_IMPORTED_MODULE_7__.calendarEventsListener)();
+      } else if (period === 'WEEK') {
+        (0,_modules_calendar__WEBPACK_IMPORTED_MODULE_6__.CalendarByEmployee)({
+          startHour: _modules_inintialState_js__WEBPACK_IMPORTED_MODULE_11__.initialState.startHour,
+          finishHour: _modules_inintialState_js__WEBPACK_IMPORTED_MODULE_11__.initialState.finishHour,
+          startDay: visitDate,
+          data
+        });
+        (0,_modules_visit__WEBPACK_IMPORTED_MODULE_8__.Visit)({
+          data,
+          period: 'WEEK'
+        });
+        (0,_modules_event_listeners__WEBPACK_IMPORTED_MODULE_7__.calendarEventsListener)();
       }
-      (0,_modules_visit__WEBPACK_IMPORTED_MODULE_8__.Visit)({
-        data,
-        period: 'DAY'
-      });
-      (0,_modules_event_listeners__WEBPACK_IMPORTED_MODULE_7__.calendarEventsListener)();
-    } else if (period === 'WEEK') {
-      (0,_modules_calendar__WEBPACK_IMPORTED_MODULE_6__.CalendarByEmployee)({
-        startHour: _modules_inintialState_js__WEBPACK_IMPORTED_MODULE_10__.initialState.startHour,
-        finishHour: _modules_inintialState_js__WEBPACK_IMPORTED_MODULE_10__.initialState.finishHour,
-        startDay: visitDate,
-        data
-      });
-      (0,_modules_visit__WEBPACK_IMPORTED_MODULE_8__.Visit)({
-        data,
-        period: 'WEEK'
-      });
-      (0,_modules_event_listeners__WEBPACK_IMPORTED_MODULE_7__.calendarEventsListener)();
+      (0,_modules_event_listeners__WEBPACK_IMPORTED_MODULE_7__.DragAndDrop)();
+      (0,_modules_event_listeners__WEBPACK_IMPORTED_MODULE_7__.Resize)();
     }
-    (0,_modules_event_listeners__WEBPACK_IMPORTED_MODULE_7__.DragAndDrop)();
-    (0,_modules_event_listeners__WEBPACK_IMPORTED_MODULE_7__.Resize)();
+  } catch (error) {
+    (0,_modules_modal__WEBPACK_IMPORTED_MODULE_10__.modal)({
+      type: 'error'
+    });
   }
 };
-getDataApiAll(_modules_inintialState_js__WEBPACK_IMPORTED_MODULE_10__.initialState);
+getDataApiAll(_modules_inintialState_js__WEBPACK_IMPORTED_MODULE_11__.initialState);
 document.querySelector('#dayWeekBtn').addEventListener('click', () => {
-  if (_modules_inintialState_js__WEBPACK_IMPORTED_MODULE_10__.initialState.period === 'DAY') {
-    _modules_inintialState_js__WEBPACK_IMPORTED_MODULE_10__.initialState.period = 'WEEK';
-  } else if (_modules_inintialState_js__WEBPACK_IMPORTED_MODULE_10__.initialState.period === 'WEEK') {
-    _modules_inintialState_js__WEBPACK_IMPORTED_MODULE_10__.initialState.period = 'DAY';
+  if (_modules_inintialState_js__WEBPACK_IMPORTED_MODULE_11__.initialState.period === 'DAY') {
+    _modules_inintialState_js__WEBPACK_IMPORTED_MODULE_11__.initialState.period = 'WEEK';
+  } else if (_modules_inintialState_js__WEBPACK_IMPORTED_MODULE_11__.initialState.period === 'WEEK') {
+    _modules_inintialState_js__WEBPACK_IMPORTED_MODULE_11__.initialState.period = 'DAY';
   }
   document.querySelector('.calendar').remove();
-  getDataApiAll(_modules_inintialState_js__WEBPACK_IMPORTED_MODULE_10__.initialState);
+  getDataApiAll(_modules_inintialState_js__WEBPACK_IMPORTED_MODULE_11__.initialState);
 });
 
 /***/ }),
@@ -4135,15 +4143,19 @@ const createCalendarBody = _ref => {
     }
   });
   if (data.length <= 1) {
-    (0,_modal__WEBPACK_IMPORTED_MODULE_2__.modal)([{
-      visitError: {
-        name: 'Графік ще нестворений!'
-      }
-    }, {
-      visitError: {
-        name: 'Майстри недоступні.'
-      }
-    }], 'warning', false);
+    (0,_modal__WEBPACK_IMPORTED_MODULE_2__.modal)({
+      visitErrors: [{
+        visitError: {
+          name: 'Графік ще нестворений!'
+        }
+      }, {
+        visitError: {
+          name: 'Майстри недоступні.'
+        }
+      }],
+      type: 'warning',
+      timeout: false
+    });
     return;
   }
   const gap = data.length > 3 ? (0,_utils__WEBPACK_IMPORTED_MODULE_0__.calculateGap)() + 2 : 1;
@@ -4547,13 +4559,24 @@ const calendarEventsListener = () => {
       (0,_modal__WEBPACK_IMPORTED_MODULE_0__.unmountModal)();
       const today = new Date();
       today.setHours(0, 0, 0);
-      if (new Date(_inintialState__WEBPACK_IMPORTED_MODULE_2__.initialState.visitDate) >= today) {
-        (0,_modal__WEBPACK_IMPORTED_MODULE_0__.modal)(event.target, 'create'); // 'modal "Створити візит" та "Створити перерву"'
+      if (_inintialState__WEBPACK_IMPORTED_MODULE_2__.initialState.period === 'DAY' && new Date(_inintialState__WEBPACK_IMPORTED_MODULE_2__.initialState.visitDate) >= today) {
+        (0,_modal__WEBPACK_IMPORTED_MODULE_0__.modal)({
+          element: event.target,
+          type: 'create'
+        }); // 'modal "Створити візит" та "Створити перерву"'
+      } else if (_inintialState__WEBPACK_IMPORTED_MODULE_2__.initialState.period === 'WEEK' && new Date(event.target.closest('.calendarColumn')?.getAttribute('id')) >= today) {
+        (0,_modal__WEBPACK_IMPORTED_MODULE_0__.modal)({
+          element: event.target,
+          type: 'create'
+        }); // 'modal "Створити візит" та "Створити перерву"'
       }
     } else if (event.target.closest('.visit') || event.target.classList.contains('visit')) {
       event.preventDefault();
       (0,_modal__WEBPACK_IMPORTED_MODULE_0__.unmountModal)();
-      (0,_modal__WEBPACK_IMPORTED_MODULE_0__.modal)(event.target, 'delete'); // 'modal Видалити візит/ Видалити перерву'
+      (0,_modal__WEBPACK_IMPORTED_MODULE_0__.modal)({
+        element: event.target,
+        type: 'delete'
+      }); // 'modal Видалити візит/ Видалити перерву'
     }
   });
 
@@ -4570,7 +4593,9 @@ const calendarEventsListener = () => {
       const visit = event.target.closest('.visit') || event.target.classList.contains('visit');
       prevElementID = currentElementID;
       (0,_modal__WEBPACK_IMPORTED_MODULE_0__.unmountModal)();
-      (0,_modal__WEBPACK_IMPORTED_MODULE_0__.modal)(visit); //'modal  вікно з деталями візиту'
+      (0,_modal__WEBPACK_IMPORTED_MODULE_0__.modal)({
+        element: visit
+      }); //'modal  вікно з деталями візиту'
     }
   });
 
@@ -4961,16 +4986,21 @@ const unmountModal = () => {
 const unmountInfoModal = () => {
   document.querySelectorAll('.modalInfo').forEach(item => item.remove());
 };
-const modal = (element, type, timeout) => {
+const modal = _ref => {
+  let {
+    element,
+    statusCode,
+    visitErrors,
+    type,
+    timeout
+  } = _ref;
   if (type === 'create') {
     (0,_modalCreate__WEBPACK_IMPORTED_MODULE_0__.modalCreate)(element);
   } else if (type === 'delete') {
     (0,_modalDelete__WEBPACK_IMPORTED_MODULE_1__.modalDelete)(element);
   } else if (type === 'error') {
-    const statusCode = element;
-    (0,_modalError__WEBPACK_IMPORTED_MODULE_3__.modalError)(statusCode);
+    (0,_modalError__WEBPACK_IMPORTED_MODULE_3__.modalError)(statusCode, timeout);
   } else if (type === 'warning') {
-    const visitErrors = element;
     (0,_modalWarning__WEBPACK_IMPORTED_MODULE_4__.modalWarning)(visitErrors, timeout);
   } else {
     (0,_modalInfo__WEBPACK_IMPORTED_MODULE_2__.modalInfo)(element);
@@ -5065,7 +5095,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _modal__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modal */ "./src/modules/modal/modal.js");
 
-const modalError = statusCode => {
+const modalError = function (statusCode) {
+  let timeout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 5000;
   let erroroMessage;
   if (statusCode === 400) {
     erroroMessage = 'Обраний майстер не може надавати додані у візит послуги';
@@ -5075,13 +5106,13 @@ const modalError = statusCode => {
         <div class="modal-content">
             <h2>Увага</h2>
             <p>Нажаль, сталась системна помилка.</p>
-            ${!!erroroMessage ? `<div class="visitErrorsWrapper">${erroroMessage}</div>` : null}
+            ${!!erroroMessage ? `<div class="visitErrorsWrapper">${erroroMessage}</div>` : ''}
         </div>
     </div>
         `;
   document.querySelector('#root').insertAdjacentHTML('beforeend', modalHTML);
   document.body.style.overflow = 'hidden';
-  setTimeout(_modal__WEBPACK_IMPORTED_MODULE_0__.unmountModal, 3000);
+  setTimeout(_modal__WEBPACK_IMPORTED_MODULE_0__.unmountModal, timeout);
 };
 
 /***/ }),
@@ -5449,7 +5480,7 @@ const createBreak = async targetCell => {
     visitTime,
     employeeId
   });
-  unmountModal();
+  (0,_modal__WEBPACK_IMPORTED_MODULE_1__.unmountModal)();
   (0,_utilsVisitStyle__WEBPACK_IMPORTED_MODULE_2__.updateVisitinDom)();
 };
 const createVisit = targetCell => {
@@ -5471,7 +5502,7 @@ const editVisitInWaitList = visit => {
 const deleteVisit = async visit => {
   const id = visit.getAttribute('id');
   await (0,_api_api__WEBPACK_IMPORTED_MODULE_0__.deleteVisit)(id);
-  unmountModal();
+  (0,_modal__WEBPACK_IMPORTED_MODULE_1__.unmountModal)();
   (0,_utilsVisitStyle__WEBPACK_IMPORTED_MODULE_2__.updateVisitinDom)();
 };
 const getVisitById = async visit => {
@@ -5526,7 +5557,10 @@ const warningsCheck = async id => {
   if (!visitErrors.length) {
     return false;
   }
-  (0,_modal__WEBPACK_IMPORTED_MODULE_1__.modal)(visitErrors, 'warning');
+  (0,_modal__WEBPACK_IMPORTED_MODULE_1__.modal)({
+    visitErrors,
+    type: 'warning'
+  });
 };
 const findScrollableParent = element => {
   if (!element) {
@@ -5665,7 +5699,10 @@ const rechekVisitData = async visit => {
     (0,_utilsModal__WEBPACK_IMPORTED_MODULE_6__.warningsCheck)(id);
   } catch (error) {
     if (Object.hasOwn(error, 'statusCode')) {
-      (0,_modal__WEBPACK_IMPORTED_MODULE_3__.modal)(error.statusCode, 'error');
+      (0,_modal__WEBPACK_IMPORTED_MODULE_3__.modal)({
+        statusCode: error.statusCode,
+        type: 'error'
+      });
     }
   } finally {
     updateVisitinDom();
@@ -17260,4 +17297,4 @@ module.exports = styleTagTransform;
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=index.983a12a8f59829f8889f.js.map
+//# sourceMappingURL=index.447b697166e9d5e941ae.js.map
