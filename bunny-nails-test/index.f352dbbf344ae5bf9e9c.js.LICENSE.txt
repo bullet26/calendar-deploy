@@ -4,3 +4,5 @@
  * License  : MIT
  * Copyright: 2022 Naotoshi Fujita
  */
+
+/*! MIT License © Sindre Sorhus */
